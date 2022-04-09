@@ -14,8 +14,6 @@
 
 每条微博按行存储在txt文件里。训练集中，正常微博命名为normal.txt, 自杀倾向微博命名为die.txt。测试集存放在后缀为_test.txt的文件中：
 
-![Python 短文本自动识别个体是否有自杀倾向](https://pythondict.com/wp-content/uploads/2019/11/2019111013222864.png)
-
 此外，接下来我们会使用到一个机器学习工具包叫scikit-learn(sklearn)，其打包好了许多机器学习模型和预处理的方法，方便我们构建分类器，在CMD/Terminal输入以下命令安装：
 
 `pip install -U scikit-learn`
@@ -24,14 +22,6 @@
 
 # 2.训练
 使用scikit-learn的SVM分类模型，我们能很快滴训练并构建出一个分类器：
-
-```
-print('(3) SVM...')
-from sklearn.svm import SVC
- 
-# 使用线性核函数的SVM分类器，并启用概率估计（分别显示分到两个类别的概率如：[0.12983359 0.87016641]）
-svclf = SVC(kernel = 'linear', probability=True) 
- 
 # 开始训练
 svclf.fit(x_train,y_train)
 # 保存模型
@@ -47,31 +37,6 @@ joblib.dump(svclf, "model/die_svm_20191110.m")
 preds = svclf.predict(x_test)
 y_preds = svclf.predict_proba(x_test)
  
-preds = preds.tolist()
-for i,pred in enumerate(preds):
-    # 显示被分错的微博
-    if int(pred) != int(y_test[i]):
-        try:
-            print(origin_eval_text[i], ':', test_texts[i], pred, y_test[i], y_preds[i])
-        except Exception as e:
-            print(e)
  
-# 分别查看两个类别的准确率、召回率和F1值
-print(classification_report(y_test, preds)) 
-```
-
 4.结果：
 
-![Python 短文本自动识别个体是否有自杀倾向](https://pythondict.com/wp-content/uploads/2019/11/2019111013521068.png)
-
-对自杀倾向微博的分类精确率为100%，但是查全率不够，它只找到了50条里的60%，也就是30条自杀倾向微博。
-
-对于正常微博的分类，其精确率为71%，也就是说有部分正常微博被分类为自杀倾向微博，不过其查全率为100%，也就是不存在不被分类的正常微博。
-
-这是建立在训练集还不够多的情况下的结果。我们的自杀倾向微博的数据仅仅才300条，这是远远不够的，如果能增加到3000条，相信结果会改进不少，尤其是对于自杀倾向微博的查全率有很大的帮助。预估最终该模型的精确率和召回率至少能达到95%。
-
-本文源代码： https://github.com/Ckend/suicide-detect-svm 欢迎一同改进这个项目。如果你访问不了github，请关注文章最下方公众号，回复自杀倾向检测获得本项目完整源代码。
-
-如果你喜欢今天的Python 教程，请持续关注[Python实用宝典](https://pythondict.com)，如果对你有帮助，麻烦在下面点一个赞/在看哦有任何问题都可以在下方留言区留言，我们会耐心解答的！
-
-![Python 短文本自动识别个体是否有自杀倾向](https://pythondict.com/wp-content/uploads/2019/08/2019080218203145.jpg)
