@@ -1,8 +1,16 @@
-import os
 import joblib
-import requests
 import logging
-from matplotlib import pyplot as plt
-from sklearn.svm import OneClassSVM
-from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
+from main import get_corpus, featurize
 
+
+if __name__ == '__main__':
+
+    corpus = get_corpus(filepath="data/predict.txt")
+    corpus_vec = featurize(corpus)
+
+    model = joblib.load("model/oc_svm.model")
+
+    logging.info("模型加载成功")
+
+    predicts = model.predict(corpus_vec)
+    print(predicts)
