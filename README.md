@@ -2,8 +2,6 @@
 
 采用联合多语言句子表示的架构（LASER），将所有语言一同嵌入到一个独立的共享空间中（而不是为每一种语言都创建一个单独的模型），从而实现在 90 多种语言中的应用。
 
-这样的分类器如果应用得当，将可以帮助成千上万误入歧途的人们挽回生命。
-
 数据中短文本包含两类，即要么是正常微博、要么是自杀倾向微博。分类器采用OneClassSVM——单分类器，只需要具有自杀倾向的微博样本参与模型训练，随后可以在正常微博内容和具有自杀倾向的微博内容上进行测试。
 
 数据集来源：https://github.com/Ckend/suicide-detect-svm
@@ -45,7 +43,7 @@ OneClassSvm API可参考：https://scikit-learn.org/stable/modules/generated/skl
 模型分别对两个类别的测试样本进行预测，计算分类精确率和召回率。scikit-learn提供了一个非常好用的函数classification_report来计算它们：
 
  
-结果如下：
+结果如下,1表示自杀倾向数据，-1表示正常文本数据：
 ```
               precision    recall  f1-score   support
 
