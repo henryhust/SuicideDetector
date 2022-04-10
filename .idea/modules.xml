@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/suicide-detect-svm-master.iml" filepath="$PROJECT_DIR$/.idea/suicide-detect-svm-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SuicideDetector.iml" filepath="$PROJECT_DIR$/.idea/SuicideDetector.iml" />
     </modules>
   </component>
 </project>

@@ -1,42 +1,60 @@
 ## 面向多语种的自杀倾向分类器
 
-一个自杀倾向分类器，这样的分类器如果应用得当，将可以帮助成千上万误入歧途的人们挽回生命。
+采用联合多语言句子表示的架构（LASER），将所有语言一同嵌入到一个独立的共享空间中（而不是为每一种语言都创建一个单独的模型），从而实现在 90 多种语言中的应用。
 
-为了简化问题，我们将短文本分为两种类别中的一种，即要么是正常微博、要么是自杀倾向微博。这样，有了上次的微博树洞，训练集和测试集就非常好获得了。由于是短文本二分类问题，可以使用scikit-learn的SVM分类模型。
+这样的分类器如果应用得当，将可以帮助成千上万误入歧途的人们挽回生命。
 
-不过要注意的是，我们的分类器并不能保证分类出来的结果百分百正确，毕竟心理状态是很难通过文本准确识别出来的，我们只能通过文字，大致判断其抑郁情况并加以介入。实际上这是一个宁可错杀一百，不可放过一个的问题。毕竟放过一个，可能就有一条生命悄然流逝。
+数据中短文本包含两类，即要么是正常微博、要么是自杀倾向微博。分类器采用OneClassSVM——单分类器，只需要具有自杀倾向的微博样本参与模型训练，随后可以在正常微博内容和具有自杀倾向的微博内容上进行测试。
 
+数据集来源：https://github.com/Ckend/suicide-detect-svm
 
 # 1.数据准备
 数据集整体上分两个部分，一部分是训练集、一部分是测试集。其中，训练集和测试集中还要分为正常微博短文本和自杀倾向短文本。
 
-将上一篇爬取微博树洞的文章中得到的数据进行人工筛选后，挑出300条作为训练集（有点少，其实业界至少也要3000条以上），再根据上次的微博爬虫随意爬取10000条微博作为训练集的正常微博类。另外再分别搜集自杀倾向微博和普通微博各50条作为测试集。
+自杀倾向的训练文本300条，正常文本10000条。测试集中自杀倾向微博和普通微博各50条。
 
 每条微博按行存储在txt文件里。训练集中，正常微博命名为normal.txt, 自杀倾向微博命名为die.txt。测试集存放在后缀为_test.txt的文件中：
 
-此外，接下来我们会使用到一个机器学习工具包叫scikit-learn(sklearn)，其打包好了许多机器学习模型和预处理的方法，方便我们构建分类器，在CMD/Terminal输入以下命令安装：
-
-`pip install -U scikit-learn`
-
-如果你还没有安装Python，请看[这篇文章安装Python](https://pythondict.com/how-to-install-python/)，然后再执行上述命令安装sklearn.
-
-# 2.训练
-使用scikit-learn的SVM分类模型，我们能很快滴训练并构建出一个分类器：
-# 开始训练
-svclf.fit(x_train,y_train)
-# 保存模型
-joblib.dump(svclf, "model/die_svm_20191110.m")
+# 2.环境准备
 ```
-这里我们忽略了SVM原理的讲述，SVM的原理可以参考这篇文章：[支持向量机（SVM）——原理篇](https://zhuanlan.zhihu.com/p/31886934)
+    pip install -r requirements.txt
+```
+
+# 3.训练
+特征表示：采用LASER框架生成文本向量，采用http方式进行请求。
+```
+def get_vect(query_in, lang='en', address='192.168.0.118:8050'):
+    url = "http://" + address + "/vectorize"
+    params = {"q": query_in, "lang": lang}
+    resp = requests.get(url=url, params=params).json()
+    return resp["embedding"]
+```
+
+模型训练：调用sklearn工具包中OneClassSVM分类器，使用自杀倾向训练文本进行训练。
+
+```
+    model = OneClassSVM(nu=0.1, kernel="rbf", gamma='auto')
+    model.fit(train_vec)
+```
+模型保存路径：model/oc_svm.model
+
+OneClassSvm API可参考：https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html?highlight=oneclasssvm#sklearn.svm.OneClassSVM
 
 # 4.测试
-测试的时候，我们要分别计算模型对两个类别的分类精确率和召回率。scikit-learn提供了一个非常好用的函数classification_report来计算它们：
 
+模型分别对两个类别的测试样本进行预测，计算分类精确率和召回率。scikit-learn提供了一个非常好用的函数classification_report来计算它们：
+
+ 
+结果如下：
 ```
-# 测试集进行测试
-preds = svclf.predict(x_test)
-y_preds = svclf.predict_proba(x_test)
- 
- 
-4.结果：
+              precision    recall  f1-score   support
 
+          -1       0.86      0.84      0.85        50
+           1       0.84      0.86      0.85        50
+
+    accuracy                           0.85       100
+   macro avg       0.85      0.85      0.85       100
+weighted avg       0.85      0.85      0.85       100
+```
+
+分类器在自杀倾向样本和正常样本上均取得85%的F1值。

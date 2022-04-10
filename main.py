@@ -43,7 +43,10 @@ def suicide_corpus():
 
 
 def get_feature(reuse=True):
-    """获取向量化特征表示"""
+    """
+    获取向量化特征表示
+    reuse: 是否利用已生成的文本向量特征，True：使用生成好的向量；False：重新生成新的向量特征
+    """
 
     train_p_vec_path = "model/train_pos.vec"
     test_p_vec_path = "model/test_pos.vec"
@@ -88,24 +91,29 @@ def train(train_vec, reuse=False, model_path="model/oc_svm.model"):
     return model
 
 
+def plot(predicts, golds):
+    """模型识别效果可视化"""
+    cm = confusion_matrix(golds, predicts, labels=[1, -1])
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[1, -1])
+
+    disp.plot()
+    plt.show()
+
+
 if __name__ == '__main__':
 
-    train_neg_vec, test_pos_vec, test_neg_vec = get_feature()
+    train_pos_vec, test_pos_vec, test_neg_vec = get_feature()
 
-    model = train(train_vec=train_neg_vec)
+    model = train(train_vec=train_pos_vec)
 
     result1 = model.predict(test_pos_vec)
     result2 = model.predict(test_neg_vec)
 
     predicts = list(result1) + list(result2)
-    gold = [1] * len(result1) + [-1] * len(result2)
+    golds = [1] * len(result1) + [-1] * len(result2)
 
-    result = classification_report(gold, predicts)
+    result = classification_report(golds, predicts)
     print(result)
 
-    cm = confusion_matrix(gold, predicts, labels=[1, -1])
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[1, -1])
-
-    disp.plot()
-    plt.show()
+    # plot(predicts=predicts, golds=golds)
 
