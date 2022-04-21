@@ -14,14 +14,25 @@
 每条微博按行存储在txt文件里。训练集中，正常微博命名为normal.txt, 自杀倾向微博命名为die.txt。测试集存放在后缀为_test.txt的文件中：
 
 # 2.环境准备
+2.1 python环境
 ```
     pip install -r requirements.txt
+```
+
+2.2 多语言向量表征 layser
+```
+拉取镜像
+docker pull  19981002/laser-server
+运行镜像
+docker run -p 8050:80 -it 19981002/laser-server python app.py
 ```
 
 # 3.训练
 特征表示：采用LASER框架生成文本向量，采用http方式进行请求。
 ```
-def get_vect(query_in, lang='en', address='192.168.0.118:8050'):
+main.py
+line23
+def get_vect(query_in, lang='en', address='xxx.xxx.xxx.xxx:8080'):  <-此处address修改为自己的ip+端口号
     url = "http://" + address + "/vectorize"
     params = {"q": query_in, "lang": lang}
     resp = requests.get(url=url, params=params).json()
@@ -38,7 +49,16 @@ def get_vect(query_in, lang='en', address='192.168.0.118:8050'):
 
 OneClassSvm API可参考：https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html?highlight=oneclasssvm#sklearn.svm.OneClassSVM
 
-# 4.测试
+程序运行
+```
+1.模型训练
+python main.py
+
+2.模型预测
+python predict.py
+```
+
+# 4.测试效果
 
 ### 中文语料
 
