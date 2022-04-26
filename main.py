@@ -20,7 +20,7 @@ def get_corpus(filepath):
         return [line.strip() for line in fr.readlines()]
 
 
-def get_vect(query_in, lang='en', address='101.33.74.244:8050'):
+def get_vect(query_in, lang='en', address='xxx.xx.xx.xx:8050'):
     url = "http://" + address + "/vectorize"
     params = {"q": query_in, "lang": lang}
     resp = requests.get(url=url, params=params).json()
