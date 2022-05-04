@@ -5,14 +5,14 @@ import logging
 from main import get_corpus, featurize
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
-label_dict = {"1": "轻生倾向", "-1": "正常言论"}
+label_dict = {"1": "军事相关", "-1": "正常言论"}
 
 
 def predict_from_file(filepath):
     corpus = get_corpus(filepath)
     corpus_vec = featurize(corpus)
 
-    model = joblib.load(os.path.join(root_dir, "model/oc_svm.model"))
+    model = joblib.load(os.path.join(root_dir, "model/military/oc_svm.model"))
     logging.info("模型加载成功")
 
     predicts = model.predict(corpus_vec)
@@ -23,7 +23,7 @@ def predict_from_file(filepath):
 def predict_one(sentence):
 
     sentence_vec = featurize([sentence])
-    model = joblib.load(os.path.join(root_dir, "model/oc_svm.model"))
+    model = joblib.load(os.path.join(root_dir, "model/military/oc_svm.model"))
 
     logging.info("模型加载成功")
     predicts = model.predict(sentence_vec)
@@ -33,6 +33,8 @@ def predict_one(sentence):
 
 if __name__ == '__main__':
 
-    # results = predict_from_file(filepath="data/predict.txt")
-    result = predict_one("这个世界已经不值得留恋，我只想赶紧死去")
-    print(result)
+    results = predict_from_file(filepath="data/predict.txt")
+    # result = predict_one("我国的情况和美国不一样")
+
+    for res in results:
+        print(res)

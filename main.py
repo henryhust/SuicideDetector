@@ -22,6 +22,24 @@ def get_corpus(filepath):
         return [line.strip() for line in fr.readlines()]
 
 
+def suicide_corpus():
+    train_pos = get_corpus(filepath=os.path.join(root_dir, "data/suicide/die.txt"))              # 自杀倾向
+    train_neg = get_corpus(filepath=os.path.join(root_dir, "data/suicide/normal.txt"))           # 正常言论
+
+    test_pos = get_corpus(filepath=os.path.join(root_dir, "data/suicide/die_test.txt"))
+    test_neg = get_corpus(filepath=os.path.join(root_dir, "data/suicide/normal_test.txt"))
+    return train_pos, train_neg, test_pos, test_neg
+
+
+def military_corpus():
+    train_pos = get_corpus(filepath=os.path.join(root_dir, "data/military/military_train.txt"))     # 军事相关
+    train_neg = get_corpus(filepath=os.path.join(root_dir, "data/military/normal_train.txt"))       # 正常言论
+
+    test_pos = get_corpus(filepath=os.path.join(root_dir, "data/military/military_test.txt"))
+    test_neg = get_corpus(filepath=os.path.join(root_dir, "data/military/normal_test.txt"))
+    return train_pos, train_neg, test_pos, test_neg
+
+
 def get_vect(query_in, lang='en', address='101.33.74.244:8050'):
     url = "http://" + address + "/vectorize"
     params = {"q": query_in, "lang": lang}
@@ -36,31 +54,22 @@ def featurize(sentences):
     return get_vect(mul_line)
 
 
-def suicide_corpus():
-    train_pos = get_corpus(filepath=os.path.join(root_dir, "data/die.txt"))              # 自杀倾向
-    train_neg = get_corpus(filepath=os.path.join(root_dir, "data/normal.txt"))           # 正常言论
-
-    test_pos = get_corpus(filepath=os.path.join(root_dir, "data/die_test.txt"))
-    test_neg = get_corpus(filepath=os.path.join(root_dir, "data/normal_test.txt"))
-    return train_pos, train_neg, test_pos, test_neg
-
-
 def get_feature(reuse=True):
     """
     获取向量化特征表示
     reuse: 是否利用已生成的文本向量特征，True：使用生成好的向量；False：重新生成新的向量特征
     """
 
-    train_p_vec_path = os.path.join(root_dir, "model/train_pos.vec")
-    test_p_vec_path = os.path.join(root_dir, "model/test_pos.vec")
-    test_n_vec_path = os.path.join(root_dir, "model/test_neg.vec")
+    train_p_vec_path = os.path.join(root_dir, "model/military/train_pos.vec")
+    test_p_vec_path = os.path.join(root_dir, "model/military/test_pos.vec")
+    test_n_vec_path = os.path.join(root_dir, "model/military/test_neg.vec")
 
     if reuse and (os.path.isfile(train_p_vec_path) and os.path.isfile(test_p_vec_path) and os.path.isfile(test_n_vec_path)):
         train_pos_vec = joblib.load(train_p_vec_path)
         test_pos_vec = joblib.load(test_p_vec_path)
         test_neg_vec = joblib.load(test_n_vec_path)
     else:
-        train_pos, train_neg, test_pos, test_neg = suicide_corpus()
+        train_pos, train_neg, test_pos, test_neg = military_corpus()
         # train_pos_vec = featurize(train_pos)
         train_pos_vec = featurize(train_pos)
 
@@ -75,7 +84,7 @@ def get_feature(reuse=True):
     return train_pos_vec, test_pos_vec, test_neg_vec
 
 
-def train(train_vec, reuse=False, model_path=os.path.join(root_dir, "model/oc_svm.model")):
+def train(train_vec, reuse=False, model_path=os.path.join(root_dir, "model/military/oc_svm.model")):
     """"""
     if reuse:
         model = joblib.load(model_path)
@@ -105,7 +114,7 @@ def plot(predicts, golds):
 
 if __name__ == '__main__':
 
-    train_pos_vec, test_pos_vec, test_neg_vec = get_feature()
+    train_pos_vec, test_pos_vec, test_neg_vec = get_feature(reuse=False)
 
     model = train(train_vec=train_pos_vec)
 
