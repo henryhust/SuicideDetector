@@ -66,6 +66,7 @@ uvicorn rest:app --host 0.0.0.0 --port 8000
 
 
 # 4.测试效果
+使用开源标注凭条label studio对数据进行标注
 
 ### 模型识别样例
 1.轻生倾向文本识别效果
